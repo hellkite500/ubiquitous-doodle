@@ -1,0 +1,86 @@
+{
+    "global": {
+        "formulations": [
+            {
+                "name": "bmi_multi",
+                "params": {
+                    "name": "bmi_multi",
+                    "model_type_name": "SLOTH_PET_CFE",
+                    "forcing_file": "",
+                    "init_config": "",
+                    "allow_exceed_end_time": true,
+                    "main_output_variable": "Q_OUT",
+                    "modules": [
+			            {
+			                "name": "bmi_c++",
+			                "params": {
+                                "name": "bmi_c++",
+                                "model_type_name": "SLOTH",
+                                "library_file": "/Users/nelsfrazier/workspace/demo/camels_calibration/ngen/extern/sloth/cmake_build/libslothmodel",
+                                "init_config": "/dev/null",
+                                "allow_exceed_end_time": true,
+                                "main_output_variable": "z",
+                                "uses_forcing_file": false,
+                                "model_params": {
+				                    "sloth_ice_fraction_schaake(1,double,m,node)": 0.0,
+				                    "sloth_ice_fraction_xinanjiang(1,double,1,node)": 0.0,
+				                    "sloth_smp(1,double,1,node)": 0.0
+                                }
+			                }
+                        },
+                        {
+                            "name": "bmi_c",
+                            "params": {
+                                "name": "bmi_c",
+                                "model_type_name": "PET",
+                                "library_file": "/Users/nelsfrazier/workspace/demo/camels_calibration/ngen/extern/evapotranspiration/cmake_build/libpetbmi",
+                                "forcing_file": "",
+                                "init_config": "/Users/nelsfrazier/workspace/demo/camels_calibration/config/PET_{{id}}.ini",
+                                "allow_exceed_end_time": true,
+                                "main_output_variable": "water_potential_evaporation_flux",
+                                "registration_function": "register_bmi_pet",
+                                "variables_names_map": {
+                                    "water_potential_evaporation_flux": "potential_evapotranspiration"
+                                }
+                            }
+                        },
+                        {
+                            "name": "bmi_c",
+                            "params": {
+                                "name": "bmi_c",
+                                "model_type_name": "CFE",
+                                "library_file": "/Users/nelsfrazier/workspace/demo/camels_calibration/ngen/extern/cfe/cmake_build/libcfebmi",
+                                "forcing_file": "",
+                                "init_config": "/Users/nelsfrazier/workspace/demo/camels_calibration/config/CFE_{{id}}.ini",
+                                "allow_exceed_end_time": true,
+                                "main_output_variable": "Q_OUT",
+                                "registration_function": "register_bmi_cfe",
+                                "variables_names_map": {
+                                    "water_potential_evaporation_flux": "potential_evapotranspiration",
+                                    "atmosphere_water__liquid_equivalent_precipitation_rate": "APCP_surface",
+                                    "ice_fraction_schaake" : "sloth_ice_fraction_schaake",
+                                    "ice_fraction_xinanjiang" : "sloth_ice_fraction_xinanjiang",
+                                    "soil_moisture_profile" : "sloth_smp"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "forcing": {
+            "file_pattern": "{{id}}_1022500_2018_to_2019.csv", 
+            "path": "/Users/nelsfrazier/workspace/demo/camels_calibration/forcing/2018_to_2019/camels_1022500_2018_to_2019/",
+            "provider": "CsvPerFeature"
+        }
+    },
+    "time": {
+        "start_time": "2018-01-01 00:00:00",
+        "end_time": "2018-01-01 23:00:00",
+        "output_interval": 3600
+    },
+   
+    "routing": {
+        "t_route_config_file_with_path": "/Users/nelsfrazier/workspace/demo/camels_calibration/routing.yaml"
+    }
+}
