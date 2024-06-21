@@ -1,0 +1,58 @@
+# file: calibration_config.yaml
+general:
+  strategy: 
+      # Type of strategy, currently supported is estimation
+      type: estimation
+      # defaults to dds (currently, the only supported algorithm)
+      algorithm: "dds"
+
+  # Enable model runtime logging (captures standard out and error and writes to file)
+  # logs will be written to <model.type>.log when enabled
+  # defaults to False, which sends all output to /dev/null
+  log: True
+
+  start_iteration: 0
+  # The total number of search iterations to run
+  iterations: 100
+
+# Define parameters to calibrate, their bounds, and initial values.
+cfe_params: &cfe_params
+  - 
+      name: maxsmc
+      min: 0.2
+      max: 1.0
+      init: 0.439
+  - 
+      name: satdk
+      min: 0.0
+      max: 0.000726
+      init: 3.38e-06
+  - 
+      name: slope
+      min: 0.0
+      max: 1.0
+      init: 0.01
+  - 
+      name: expon
+      min: 1.0
+      max: 8.0
+      init: 6.0
+
+# Model specific configuration
+model:
+    type: ngen
+    # NOTE: you may need to adjust this to the location of your NextGen installation
+    # A binary in $PATH or a qualified path to the binary to run
+    binary: "/Users/nelsfrazier/workspace/demo/camels_calibration/ngen/cmake_build/ngen"
+    realization: ./realization.json
+    # Required path to catchment hydrofabirc file
+    hydrofabric: ./Gage_1022500.gpkg
+    eval_feature: wb-3550
+    # Each catchment upstream of observable nexus gets its own permuted parameter space, evaluates at one observable nexus 
+    strategy: independent
+    params: 
+        CFE: *cfe_params
+    
+    eval_params:
+      # choices are "kling_gupta", "nnse", "custom", "single_peak", "volume"
+      objective: "kling_gupta"
